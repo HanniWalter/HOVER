@@ -11,6 +11,6 @@ dataclass-wizard
 -e neural_wbc/mujoco_wrapper
 -e neural_wbc/inference_env
 -e neural_wbc/student_policy
--e third_party/human2humanoid/phc
+-e third_party/human2humanoid/poselib
 -e third_party/mujoco_viewer
 -e third_party/rsl_rl

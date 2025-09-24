@@ -1,0 +1,34 @@
+# syntax=docker.io/docker/dockerfile:1.7-labs
+FROM nvcr.io/nvidia/isaac-lab:2.0.0
+
+# Hide conflicting Vulkan files, if needed.
+RUN if [ -e "/usr/share/vulkan" ] && [ -e "/etc/vulkan" ]; then \
+  mv /usr/share/vulkan /usr/share/vulkan_hidden; \
+  fi
+
+WORKDIR /workspace/neural_wbc
+
+# Copy dependency files for better caching
+COPY requirements*.txt pyproject.toml ./
+
+# Copy the neural_wbc module setup files
+COPY neural_wbc/ neural_wbc/
+
+# Copy third_party dependencies
+COPY third_party/ third_party/
+
+# Copy install script and patch files
+COPY install_deps_docker.sh ./
+
+# Install dependencies - this layer will be cached unless dependency files change
+RUN ./install_deps_docker.sh
+
+# Set up Isaac Lab environment variables permanently
+ENV ISAACLAB_PATH=/workspace/isaaclab
+ENV PYTHONPATH "${PYTHONPATH}:/workspace/neural_wbc/third_party/human2humanoid"
+
+# Copy the rest of the project files (excluding scripts for better caching)
+COPY --exclude=scripts . /workspace/neural_wbc
+
+# Copy scripts separately after installation to avoid cache invalidation
+COPY scripts/ /workspace/neural_wbc/scripts/

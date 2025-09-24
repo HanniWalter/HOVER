@@ -2,4 +2,4 @@
 *.egg-info
 logs/
 /data/
-third_party/human2humanoid
+third_party/
